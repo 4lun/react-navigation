@@ -215,13 +215,18 @@ export default function App() {
   const [dimensions, setDimensions] = React.useState(Dimensions.get('window'));
 
   React.useEffect(() => {
+    let dimensionsThrottle: ReturnType<typeof setTimeout>;
     const onDimensionsChange = ({ window }: { window: ScaledSize }) => {
-      setDimensions(window);
+      clearTimeout(dimensionsThrottle);
+      dimensionsThrottle = setTimeout(() => setDimensions(window), 100);
     };
 
     Dimensions.addEventListener('change', onDimensionsChange);
 
-    return () => Dimensions.removeEventListener('change', onDimensionsChange);
+    return () => {
+      Dimensions.removeEventListener('change', onDimensionsChange);
+      clearTimeout(dimensionsThrottle);
+    };
   }, []);
 
   const navigationRef = useNavigationContainerRef();
